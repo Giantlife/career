@@ -1,8 +1,8 @@
 pipeline {
     agent any
     environment {
-        SSH_CRED = credentials('web-server-key')
-        def CONNECT = 'ssh -o StrictHostKeyChecking=no ubuntu@ec2-3-91-17-246.compute-1.amazonaws.com'
+        SSH_CRED = credentials('deploy-key')
+        def CONNECT = 'ssh -o StrictHostKeyChecking=no ubuntu@ec2-3-99-159-231.ca-central-1.compute.amazonaws.com'
     }
     stages {
         
@@ -18,8 +18,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying'
-                sshagent(['web-server-key']) {
-                    sh 'scp -i $SSH_CRED webapp.zip ubuntu@ec2-3-91-17-246.compute-1.amazonaws.com:/home/ubuntu'
+                sshagent(['deploy-key']) {
+                    sh 'scp -i $SSH_CRED webapp.zip ubuntu@ec2-3-99-159-231.ca-central-1.compute.amazonaws.com:/home/ubuntu'
                     sh '$CONNECT "curl ifconfig.io"'
                     sh '$CONNECT "sudo apt install zip -y"'
                     sh '$CONNECT "rm -rf /var/www/html/"'
@@ -39,7 +39,7 @@ pipeline {
         stage('Clean-Up') {
             steps {
                 echo 'Remove existing files'
-                sshagent(['web-server-key']) {
+                sshagent(['deploy-key']) {
                     sh '$CONNECT "sudo rm /home/ubuntu/webapp.zip"'
                 }
             }
